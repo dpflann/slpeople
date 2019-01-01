@@ -144,3 +144,34 @@ func ErrListPeople(err error) render.Renderer {
 		ErrorText:      err.Error(),
 	}
 }
+
+/*** Level 2: Unique Character Frequencies ***/
+func CharacterFrequencyCount(str string) map[string]int {
+	frequencies := map[string]int{}
+	for _, c := range str {
+		cStr := string(c)
+		if _, ok := frequencies[cStr]; ok {
+			frequencies[cStr] += 1
+		} else {
+			frequencies[cStr] = 1
+		}
+	}
+	// TODO add sorting by value
+	return frequencies
+}
+
+func CharacterFrequencyCountOfStrings(strs []string) map[string]int {
+	// Naive handling
+	result := map[string]int{}
+	for _, s := range strs {
+		res := CharacterFrequencyCount(s)
+		for c, v := range res {
+			if _, ok := result[c]; ok {
+				result[c] += v
+			} else {
+				result[c] = v
+			}
+		}
+	}
+	return result
+}
