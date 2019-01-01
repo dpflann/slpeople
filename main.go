@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/go-chi/chi"
@@ -33,9 +34,20 @@ type (
 	PeopleListResponse struct {
 		*People
 	}
+	SalesLoftApiPagingMetadata struct {
+		PerPage     *int `json:"per_page"`
+		CurrentPage *int `json:"current_page"`
+		NextPage    *int `json:"next_page"`
+		PrevPage    *int `json:prev_page"`
+		TotalPages  *int `json:"total_pages,omitempty"`
+		TotalCount  *int `json:"total_count,omitempty"`
+	}
+	SalesLoftApiMetadata struct {
+		Paging SalesLoftApiPagingMetadata `json:"paging"`
+	}
 	SalesLoftApiPeopleResponse struct {
-		Metadata map[string]interface{} `json:"metadata"`
-		Data     *People                `json:"data"`
+		Metadata SalesLoftApiMetadata `json:"metadata"`
+		Data     *People              `json:"data"`
 	}
 	ErrResponse struct {
 		Err            error `json:"-"` // low-level runtime error
@@ -74,6 +86,7 @@ func main() {
 	http.ListenAndServe(":3000", r)
 }
 
+/*** Level 1: List People ***/
 func (p *PeopleListResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
@@ -82,6 +95,8 @@ func ListPeople(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", SalesLoftApiURL, nil)
 	req.Header.Add("Authorization", "Bearer "+*apikey)
+	payload := url.Values{}
+	payload.Add("per_page", "100")
 	resp, err := client.Do(req)
 	if err != nil {
 		render.Render(w, r, ErrListPeople(err))
