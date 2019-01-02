@@ -92,6 +92,18 @@ func (p *PeopleListResponse) Render(w http.ResponseWriter, r *http.Request) erro
 }
 
 func ListPeople(w http.ResponseWriter, r *http.Request) {
+	people, err := listSalesLoftPeople()
+	if err != nil {
+		render.Render(w, r, ErrListPeople(err))
+		return
+	}
+	if err := render.Render(w, r, NewPeopleListResponse(people)); err != nil {
+		render.Render(w, r, ErrRender(err))
+		return
+	}
+}
+
+func listSalesLoftPeople() (*People, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", SalesLoftApiURL, nil)
 	req.Header.Add("Authorization", "Bearer "+*apikey)
@@ -99,23 +111,17 @@ func ListPeople(w http.ResponseWriter, r *http.Request) {
 	payload.Add("per_page", "100")
 	resp, err := client.Do(req)
 	if err != nil {
-		render.Render(w, r, ErrListPeople(err))
-		return
+		return nil, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		render.Render(w, r, ErrListPeople(err))
-		return
+		return nil, err
 	}
 	salesLoftPeople := &SalesLoftApiPeopleResponse{}
 	if err := json.Unmarshal(body, salesLoftPeople); err != nil {
-		render.Render(w, r, ErrListPeople(err))
-		return
+		return nil, err
 	}
-	if err := render.Render(w, r, NewPeopleListResponse(salesLoftPeople.Data)); err != nil {
-		render.Render(w, r, ErrRender(err))
-		return
-	}
+	return salesLoftPeople.Data, nil
 }
 
 func NewPeopleListResponse(people *People) *PeopleListResponse {
