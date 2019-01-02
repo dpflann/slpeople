@@ -252,8 +252,8 @@ func EmailCharacterFrequencies(w http.ResponseWriter, r *http.Request) {
 	for i := range *people {
 		emailAddresses[i] = (*people)[i].EmailAddress
 	}
-	charFrequencies := CharacterFrequencyCountOfStrings(emailAddresses)
-	if err := render.Render(w, r, NewCharacterFrequenciesResponse(&charFrequencies)); err != nil {
+	charFrequencies := CharacterFrequencyCountOfStrings(emailAddresses, blackList)
+	if err := render.Render(w, r, NewSortedCharacterFrequenciesResponse(&charFrequencies)); err != nil {
 		render.Render(w, r, ErrRender(err))
 		return
 	}
