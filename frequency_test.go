@@ -41,19 +41,19 @@ func TestCharacterFrequencies(t *testing.T) {
 		expected  map[string]int
 	}{
 		{
-			addresses: []string{"abc@def.ghi"},
+			addresses: []string{"abc@def.ghi", "ghi@def.abc"},
 			expected: map[string]int{
-				"a": 1,
-				"b": 1,
-				"c": 1,
-				"d": 1,
-				"e": 1,
-				"f": 1,
-				"g": 1,
-				"h": 1,
-				"i": 1,
-				"@": 1,
-				".": 1,
+				"a": 2,
+				"b": 2,
+				"c": 2,
+				"d": 2,
+				"e": 2,
+				"f": 2,
+				"g": 2,
+				"h": 2,
+				"i": 2,
+				"@": 2,
+				".": 2,
 			},
 		},
 	}
