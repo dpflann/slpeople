@@ -49,6 +49,10 @@ type (
 		Metadata SalesLoftApiMetadata `json:"metadata"`
 		Data     *People              `json:"data"`
 	}
+	CharacterFrequencies         map[string]int
+	CharacterFrequenciesResponse struct {
+		*CharacterFrequencies
+	}
 	ErrResponse struct {
 		Err            error `json:"-"` // low-level runtime error
 		HTTPStatusCode int   `json:"-"` // http response status code
@@ -80,7 +84,7 @@ func main() {
 	// RESTy routes for "articles" resource
 	r.Route("/people", func(r chi.Router) {
 		r.Get("/", ListPeople)
-		//r.Get("/frequencies", EmailCharacterFrequencies)
+		r.Get("/frequencies", EmailCharacterFrequencies)
 		//r.Get("/duplicates", DuplicateEmails)
 	})
 	http.ListenAndServe(":3000", r)
@@ -152,8 +156,8 @@ func ErrListPeople(err error) render.Renderer {
 }
 
 /*** Level 2: Unique Character Frequencies ***/
-func CharacterFrequencyCount(str string) map[string]int {
-	frequencies := map[string]int{}
+func CharacterFrequencyCount(str string) CharacterFrequencies {
+	frequencies := CharacterFrequencies{}
 	for _, c := range str {
 		cStr := string(c)
 		if _, ok := frequencies[cStr]; ok {
@@ -162,22 +166,46 @@ func CharacterFrequencyCount(str string) map[string]int {
 			frequencies[cStr] = 1
 		}
 	}
-	// TODO add sorting by value
 	return frequencies
 }
 
-func CharacterFrequencyCountOfStrings(strs []string) map[string]int {
+func CharacterFrequencyCountOfStrings(strs []string) CharacterFrequencies {
 	// Naive handling
-	result := map[string]int{}
+	frequencies := CharacterFrequencies{}
 	for _, s := range strs {
 		res := CharacterFrequencyCount(s)
 		for c, v := range res {
-			if _, ok := result[c]; ok {
-				result[c] += v
+			if _, ok := frequencies[c]; ok {
+				frequencies[c] += v
 			} else {
-				result[c] = v
+				frequencies[c] = v
 			}
 		}
 	}
-	return result
+	return frequencies
+}
+
+func NewCharacterFrequenciesResponse(charFrequencies *CharacterFrequencies) *CharacterFrequenciesResponse {
+	return &CharacterFrequenciesResponse{CharacterFrequencies: charFrequencies}
+}
+
+func (c *CharacterFrequenciesResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
+func EmailCharacterFrequencies(w http.ResponseWriter, r *http.Request) {
+	people, err := listSalesLoftPeople()
+	if err != nil {
+		render.Render(w, r, ErrListPeople(err))
+		return
+	}
+	emailAddresses := make([]string, len(*people))
+	for i := range *people {
+		emailAddresses[i] = (*people)[i].EmailAddress
+	}
+	charFrequencies := CharacterFrequencyCountOfStrings(emailAddresses)
+	if err := render.Render(w, r, NewCharacterFrequenciesResponse(&charFrequencies)); err != nil {
+		render.Render(w, r, ErrRender(err))
+		return
+	}
 }
