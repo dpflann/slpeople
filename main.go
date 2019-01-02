@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
+	"sort"
+	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -49,11 +50,16 @@ type (
 		Metadata SalesLoftApiMetadata `json:"metadata"`
 		Data     *People              `json:"data"`
 	}
-	CharacterFrequencies         map[string]int
-	CharacterFrequenciesResponse struct {
-		*CharacterFrequencies
+	CharacterFrequencies               map[string]int
+	SortedCharacterFrequenciesResponse struct {
+		*SortedCharFreqs `json:"frequencies"`
 	}
-	ErrResponse struct {
+	KeyVal struct {
+		Key   string `json:"key"`
+		Value int    `json:"value"`
+	}
+	SortedCharFreqs []KeyVal
+	ErrResponse     struct {
 		Err            error `json:"-"` // low-level runtime error
 		HTTPStatusCode int   `json:"-"` // http response status code
 
@@ -64,7 +70,11 @@ type (
 )
 
 var (
-	apikey = flag.String("apikey", "", "SalesLoft API Key for communications with SalesLoft API (https://developers.salesloft.com/api.html)")
+	apikey    = flag.String("apikey", "", "SalesLoft API Key for communications with SalesLoft API (https://developers.salesloft.com/api.html)")
+	blackList = map[string]bool{
+		".": true,
+		"@": true,
+	}
 )
 
 func main() {
@@ -108,11 +118,35 @@ func ListPeople(w http.ResponseWriter, r *http.Request) {
 }
 
 func listSalesLoftPeople() (*People, error) {
+	people := People{}
+	pp := 100
+	np := 0
+	var perPage *int
+	var nextPage *int
+	perPage = &pp
+	nextPage = &np
+	resp := &SalesLoftApiPeopleResponse{}
+	var err error
+	for err == nil && nextPage != nil {
+		resp, err = getPeople(*perPage, *nextPage)
+		people = append(people, []SimplifiedPersonView(*resp.Data)...)
+		perPage = resp.Metadata.Paging.PerPage
+		nextPage = resp.Metadata.Paging.NextPage
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &people, nil
+}
+
+func getPeople(perPage, page int) (*SalesLoftApiPeopleResponse, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", SalesLoftApiURL, nil)
 	req.Header.Add("Authorization", "Bearer "+*apikey)
-	payload := url.Values{}
-	payload.Add("per_page", "100")
+	q := req.URL.Query()
+	q.Add("per_page", strconv.Itoa(perPage))
+	q.Add("page", strconv.Itoa(page))
+	req.URL.RawQuery = q.Encode()
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -125,7 +159,7 @@ func listSalesLoftPeople() (*People, error) {
 	if err := json.Unmarshal(body, salesLoftPeople); err != nil {
 		return nil, err
 	}
-	return salesLoftPeople.Data, nil
+	return salesLoftPeople, nil
 }
 
 func NewPeopleListResponse(people *People) *PeopleListResponse {
@@ -156,10 +190,13 @@ func ErrListPeople(err error) render.Renderer {
 }
 
 /*** Level 2: Unique Character Frequencies ***/
-func CharacterFrequencyCount(str string) CharacterFrequencies {
+func CharacterFrequencyCount(str string, blackList map[string]bool) CharacterFrequencies {
 	frequencies := CharacterFrequencies{}
 	for _, c := range str {
 		cStr := string(c)
+		if _, ok := blackList[cStr]; ok {
+			continue
+		}
 		if _, ok := frequencies[cStr]; ok {
 			frequencies[cStr] += 1
 		} else {
@@ -169,11 +206,11 @@ func CharacterFrequencyCount(str string) CharacterFrequencies {
 	return frequencies
 }
 
-func CharacterFrequencyCountOfStrings(strs []string) CharacterFrequencies {
+func CharacterFrequencyCountOfStrings(strs []string, blackList map[string]bool) CharacterFrequencies {
 	// Naive handling
 	frequencies := CharacterFrequencies{}
 	for _, s := range strs {
-		res := CharacterFrequencyCount(s)
+		res := CharacterFrequencyCount(s, blackList)
 		for c, v := range res {
 			if _, ok := frequencies[c]; ok {
 				frequencies[c] += v
@@ -185,12 +222,24 @@ func CharacterFrequencyCountOfStrings(strs []string) CharacterFrequencies {
 	return frequencies
 }
 
-func NewCharacterFrequenciesResponse(charFrequencies *CharacterFrequencies) *CharacterFrequenciesResponse {
-	return &CharacterFrequenciesResponse{CharacterFrequencies: charFrequencies}
+func NewSortedCharacterFrequenciesResponse(charFrequencies *CharacterFrequencies) *SortedCharacterFrequenciesResponse {
+	return &SortedCharacterFrequenciesResponse{SortedCharFreqs: charFrequencies.Sorted()}
 }
 
-func (c *CharacterFrequenciesResponse) Render(w http.ResponseWriter, r *http.Request) error {
+func (c *SortedCharacterFrequenciesResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
+}
+
+func (c *CharacterFrequencies) Sorted() *SortedCharFreqs {
+	var cfs SortedCharFreqs
+	for char, count := range *c {
+		cfs = append(cfs, KeyVal{char, count})
+	}
+
+	sort.Slice(cfs, func(i, j int) bool {
+		return cfs[i].Value > cfs[j].Value
+	})
+	return &cfs
 }
 
 func EmailCharacterFrequencies(w http.ResponseWriter, r *http.Request) {
