@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"sort"
@@ -79,6 +80,7 @@ type (
 
 var (
 	apikey    = flag.String("apikey", "", "SalesLoft API Key for communications with SalesLoft API (https://developers.salesloft.com/api.html)")
+	port      = flag.String("port", "3000", "The port for the service. The default value is 3000.")
 	blackList = map[string]bool{
 		".": true,
 		"@": true,
@@ -90,6 +92,14 @@ func main() {
 	if *apikey == "" {
 		fmt.Fprintf(os.Stderr, "An API Key is required. Please obtain a SalesLoft API key from your account or contact SalesLoft Support (support@salesloft.com) for assistance.")
 		os.Exit(1)
+	} else {
+		log.Printf("Using API key: %s\n", *apikey)
+	}
+	if *port == "" {
+		fmt.Fprintf(os.Stderr, "The port was set to empty string. :(")
+		os.Exit(2)
+	} else {
+		log.Printf("Using port: %s\n", *port)
 	}
 	r := chi.NewRouter()
 
@@ -105,7 +115,7 @@ func main() {
 		r.Get("/char_frequencies", EmailCharacterFrequencies)
 		r.Get("/duplicates", PossibleDuplicateEmails)
 	})
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(":"+*port, r)
 }
 
 /*** Level 1: List People ***/
@@ -133,6 +143,9 @@ func listSalesLoftPeople() (*People, error) {
 	var err error
 	for err == nil && nextPage != nil {
 		resp, err = getPeople(*perPage, *nextPage)
+		if err != nil || resp.Data == nil {
+			break
+		}
 		people = append(people, []SimplifiedPersonView(*resp.Data)...)
 		perPage = resp.Metadata.Paging.PerPage
 		nextPage = resp.Metadata.Paging.NextPage
