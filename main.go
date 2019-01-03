@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -50,6 +51,7 @@ type (
 		Metadata SalesLoftApiMetadata `json:"metadata"`
 		Data     *People              `json:"data"`
 	}
+
 	CharacterFrequencies               map[string]int
 	SortedCharacterFrequenciesResponse struct {
 		*SortedCharFreqs `json:"frequencies"`
@@ -59,7 +61,13 @@ type (
 		Value int    `json:"value"`
 	}
 	SortedCharFreqs []KeyVal
-	ErrResponse     struct {
+
+	PossibleDuplicates         [][]string
+	PossibleDuplicatesResponse struct {
+		*PossibleDuplicates
+	}
+
+	ErrResponse struct {
 		Err            error `json:"-"` // low-level runtime error
 		HTTPStatusCode int   `json:"-"` // http response status code
 
@@ -94,17 +102,13 @@ func main() {
 	// RESTy routes for "articles" resource
 	r.Route("/people", func(r chi.Router) {
 		r.Get("/", ListPeople)
-		r.Get("/frequencies", EmailCharacterFrequencies)
-		//r.Get("/duplicates", DuplicateEmails)
+		r.Get("/char_frequencies", EmailCharacterFrequencies)
+		r.Get("/duplicates", PossibleDuplicateEmails)
 	})
 	http.ListenAndServe(":3000", r)
 }
 
 /*** Level 1: List People ***/
-func (p *PeopleListResponse) Render(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
-
 func ListPeople(w http.ResponseWriter, r *http.Request) {
 	people, err := listSalesLoftPeople()
 	if err != nil {
@@ -166,27 +170,8 @@ func NewPeopleListResponse(people *People) *PeopleListResponse {
 	return &PeopleListResponse{People: people}
 }
 
-func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
-	render.Status(r, e.HTTPStatusCode)
+func (p *PeopleListResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
-}
-
-func ErrRender(err error) render.Renderer {
-	return &ErrResponse{
-		Err:            err,
-		HTTPStatusCode: 422,
-		StatusText:     "Error rendering response.",
-		ErrorText:      err.Error(),
-	}
-}
-
-func ErrListPeople(err error) render.Renderer {
-	return &ErrResponse{
-		Err:            err,
-		HTTPStatusCode: 500,
-		StatusText:     "Error listing people from SalesLoft API.",
-		ErrorText:      err.Error(),
-	}
 }
 
 /*** Level 2: Unique Character Frequencies ***/
@@ -222,26 +207,6 @@ func CharacterFrequencyCountOfStrings(strs []string, blackList map[string]bool) 
 	return frequencies
 }
 
-func NewSortedCharacterFrequenciesResponse(charFrequencies *CharacterFrequencies) *SortedCharacterFrequenciesResponse {
-	return &SortedCharacterFrequenciesResponse{SortedCharFreqs: charFrequencies.Sorted()}
-}
-
-func (c *SortedCharacterFrequenciesResponse) Render(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
-
-func (c *CharacterFrequencies) Sorted() *SortedCharFreqs {
-	var cfs SortedCharFreqs
-	for char, count := range *c {
-		cfs = append(cfs, KeyVal{char, count})
-	}
-
-	sort.Slice(cfs, func(i, j int) bool {
-		return cfs[i].Value > cfs[j].Value
-	})
-	return &cfs
-}
-
 func EmailCharacterFrequencies(w http.ResponseWriter, r *http.Request) {
 	people, err := listSalesLoftPeople()
 	if err != nil {
@@ -257,4 +222,129 @@ func EmailCharacterFrequencies(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrRender(err))
 		return
 	}
+}
+
+func (c *CharacterFrequencies) Sorted() *SortedCharFreqs {
+	var cfs SortedCharFreqs
+	for char, count := range *c {
+		cfs = append(cfs, KeyVal{char, count})
+	}
+
+	sort.Slice(cfs, func(i, j int) bool {
+		return cfs[i].Value > cfs[j].Value
+	})
+	return &cfs
+}
+
+func NewSortedCharacterFrequenciesResponse(charFrequencies *CharacterFrequencies) *SortedCharacterFrequenciesResponse {
+	return &SortedCharacterFrequenciesResponse{SortedCharFreqs: charFrequencies.Sorted()}
+}
+
+func (c *SortedCharacterFrequenciesResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
+/*** Level 3: Duplicate Email Addresses ***/
+//https://stackoverflow.com/questions/577463/finding-how-similar-two-strings-are
+
+func PossibleDuplicateEmails(w http.ResponseWriter, r *http.Request) {
+	people, err := listSalesLoftPeople()
+	if err != nil {
+		render.Render(w, r, ErrListPeople(err))
+		return
+	}
+	emailAddresses := make([]string, len(*people))
+	for i := range *people {
+		emailAddresses[i] = (*people)[i].EmailAddress
+	}
+	duplicateEmailAddresses := FindPossibleDuplicates(emailAddresses)
+	if err := render.Render(w, r, NewPossibleDuplicatesResponse(&duplicateEmailAddresses)); err != nil {
+		render.Render(w, r, ErrRender(err))
+		return
+	}
+}
+
+func NewPossibleDuplicatesResponse(pdupes *PossibleDuplicates) *PossibleDuplicatesResponse {
+	return &PossibleDuplicatesResponse{PossibleDuplicates: pdupes}
+}
+
+func (pd *PossibleDuplicatesResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
+func FindPossibleDuplicates(strs []string) PossibleDuplicates {
+	duplicates := PossibleDuplicates{}
+	// 1. Compare the lengths
+	// 2. Compare the characters
+	for i := 0; i < len(strs); i++ {
+		dupes := []string{strs[i]}
+		for j := i + 1; j < len(strs); j++ {
+			if !compareLengths(strs[i], strs[j], 1) {
+				continue
+			}
+			if !compareChars(strs[i], strs[j], 0) {
+				continue
+			}
+			dupes = append(dupes, strs[j])
+		}
+		if len(dupes) > 1 {
+			duplicates = append(duplicates, dupes)
+		}
+	}
+	return duplicates
+}
+
+func compareLengths(str1, str2 string, threshold int) bool {
+	if len(str1) == len(str2) {
+		return true
+	}
+	if len(str1) > len(str2) {
+		return (len(str1) - len(str2) - threshold) == 0
+	}
+	return (len(str2) - len(str1) - threshold) == 0
+}
+
+func compareChars(str1, str2 string, threshold int) bool {
+	chars1 := CharacterFrequencyCount(str1, nil)
+	onlyChars1 := bytes.NewBuffer(nil)
+	chars2 := CharacterFrequencyCount(str2, nil)
+	onlyChars2 := bytes.NewBuffer(nil)
+	for c1 := range chars1 {
+		if _, ok := chars2[c1]; !ok {
+			onlyChars1.WriteString(c1)
+		}
+	}
+	for c2 := range chars2 {
+		if _, ok := chars1[c2]; !ok {
+			onlyChars2.WriteString(c2)
+		}
+	}
+	if onlyChars1.Len() == 0 && onlyChars2.Len() == 0 {
+		return true
+	}
+	return compareLengths(onlyChars1.String(), onlyChars2.String(), 0)
+}
+
+/*** Errors ***/
+func ErrRender(err error) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: 422,
+		StatusText:     "Error rendering response.",
+		ErrorText:      err.Error(),
+	}
+}
+
+func ErrListPeople(err error) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: 500,
+		StatusText:     "Error listing people from SalesLoft API.",
+		ErrorText:      err.Error(),
+	}
+}
+
+func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	render.Status(r, e.HTTPStatusCode)
+	return nil
 }
