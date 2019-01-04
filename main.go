@@ -32,8 +32,9 @@ type (
 		LastName              string `json:"last_name"`
 		DisplayName           string `json:"display_name"`
 		EmailAddress          string `json:"email_address"`
-		SecondaryEmailAddress string `json"secondary_email_address"`
+		SecondaryEmailAddress string `json:"secondary_email_address"`
 		PersonalEmailAddress  string `json:"personal_email_address"`
+		Title                 string `json:"title"`
 	}
 	People             []SimplifiedPersonView
 	PeopleListResponse struct {
