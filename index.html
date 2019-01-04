@@ -2,10 +2,22 @@
 <html>
     <head>
     <script src="https://unpkg.com/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
     </head>
     <body>
-        <div id="app">
-              <p>{{ message }}</p>
+        <div id="people">
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Email Address</th>
+                    <th>Job Title</th>
+                </tr>
+                <tr v-for="person in people">
+                    <td>{{ person.display_name }}</td>
+                    <td>{{ person.email_address }}</td>
+                    <td>{{ person.title }}</td>
+                </tr>
+            </table>
         </div>
         <script src="/static/js/app.js"></script>
     </body>
