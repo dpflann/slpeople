@@ -1,9 +1,10 @@
 FROM golang:latest 
-WORKDIR /go
+WORKDIR /app
 ADD . "/go/src/github.com/slpeople"
-RUN cd "/go/src/github.com/slpeople"; go build -o slpeople.app; cp slpeople.app /go
+RUN cd "/go/src/github.com/slpeople"; go build -o slpeople.app; cp slpeople.app /app
 EXPOSE 3000
-ADD start.sh start.sh
-RUN ls
+COPY start.sh start.sh
+COPY index.html index.html
+COPY static/ static/
 
 ENTRYPOINT ["./start.sh"]
