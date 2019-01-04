@@ -38,7 +38,7 @@ type (
 	}
 	People             []SimplifiedPersonView
 	PeopleListResponse struct {
-		*People
+		*People `json:"people"`
 	}
 	SalesLoftApiPagingMetadata struct {
 		PerPage     *int `json:"per_page"`

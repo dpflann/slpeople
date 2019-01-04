@@ -9,7 +9,7 @@ var people = new Vue({
      methods: {
          listPeople(resource) {
              this.$http.get('/people').then(response => {
-                     this.people = response.body.People;
+                     this.people = response.body.people;
            }, response => {
            });
          }
