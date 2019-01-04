@@ -19,6 +19,19 @@
                 </tr>
             </table>
         </div>
+        <div id="character-frequencies">
+            <button v-on:click="listCharacterFrequencies">List Email Character Frequencies</button>
+            <table>
+                <tr>
+                    <th>Character</th>
+                    <th>Frequency</th>
+                </tr>
+                <tr v-for="kv in frequencies">
+                    <td>{{ kv.key }}</td>
+                    <td>{{ kv.value }}</td>
+                </tr>
+            </table>
+        </div>
         <script src="/static/js/app.js"></script>
     </body>
 </html>
