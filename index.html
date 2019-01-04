@@ -32,6 +32,14 @@
                 </tr>
             </table>
         </div>
+        <div id="possible-duplicates">
+            <button v-on:click="listPossibleDuplicates">Possible Duplicates Emails</button>
+            <ul v-for="ds in possibleDuplicates">
+                <ul v-for="d in ds">
+                    <li>{{ d }}</li>
+                </ul>
+            </ul>
+        </div>
         <script src="/static/js/app.js"></script>
     </body>
 </html>

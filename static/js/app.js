@@ -30,3 +30,18 @@ var charFrequences = new Vue({
          }
      }
 });
+
+var possibleDuplicates = new Vue({
+      el: '#possible-duplicates',
+      data: {
+          possibleDuplicates: []
+     },
+     methods: {
+         listPossibleDuplicates(resource) {
+             this.$http.get('/people/duplicates').then(response => {
+                     this.possibleDuplicates = response.body.possibleDuplicates
+           }, response => {
+           });
+         }
+     }
+});

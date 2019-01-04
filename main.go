@@ -68,7 +68,7 @@ type (
 
 	PossibleDuplicates         [][]string
 	PossibleDuplicatesResponse struct {
-		*PossibleDuplicates
+		*PossibleDuplicates `json:"possibleDuplicates"`
 	}
 
 	ErrResponse struct {
@@ -112,7 +112,6 @@ func main() {
 	r.Use(middleware.URLFormat)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-	// RESTy routes for "articles" resource
 	r.Route("/people", func(r chi.Router) {
 		r.Get("/", ListPeople)
 		r.Get("/char_frequencies", EmailCharacterFrequencies)
