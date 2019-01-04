@@ -15,3 +15,18 @@ var people = new Vue({
          }
      }
 });
+
+var charFrequences = new Vue({
+      el: '#character-frequencies',
+      data: {
+          frequencies: []
+     },
+     methods: {
+         listCharacterFrequencies(resource) {
+             this.$http.get('/people/char_frequencies').then(response => {
+                     this.frequencies = response.body.frequencies
+           }, response => {
+           });
+         }
+     }
+});
