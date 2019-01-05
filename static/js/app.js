@@ -23,7 +23,7 @@ var charFrequences = new Vue({
      },
      methods: {
          listCharacterFrequencies(resource) {
-             this.$http.get('/people/char_frequencies').then(response => {
+             this.$http.get('/people/emails/char-frequencies').then(response => {
                      this.frequencies = response.body.frequencies
            }, response => {
            });
@@ -38,7 +38,7 @@ var possibleDuplicates = new Vue({
      },
      methods: {
          listPossibleDuplicates(resource) {
-             this.$http.get('/people/duplicates').then(response => {
+             this.$http.get('/people/emails/duplicates').then(response => {
                      this.possibleDuplicates = response.body.possibleDuplicates
            }, response => {
            });

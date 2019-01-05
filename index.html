@@ -1,44 +1,52 @@
 <!DOCTYPE html>
 <html>
     <head>
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+        <script src="https://unpkg.com/vue"></script>
+        <link href="/static/css/style.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
     </head>
     <body>
-        <div id="people">
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Email Address</th>
-                    <th>Job Title</th>
-                </tr>
-                <tr v-for="person in people">
-                    <td>{{ person.display_name }}</td>
-                    <td>{{ person.email_address }}</td>
-                    <td>{{ person.title }}</td>
-                </tr>
-            </table>
-        </div>
-        <div id="character-frequencies">
-            <button v-on:click="listCharacterFrequencies">List Email Character Frequencies</button>
-            <table>
-                <tr>
-                    <th>Character</th>
-                    <th>Frequency</th>
-                </tr>
-                <tr v-for="kv in frequencies">
-                    <td>{{ kv.key }}</td>
-                    <td>{{ kv.value }}</td>
-                </tr>
-            </table>
-        </div>
-        <div id="possible-duplicates">
-            <button v-on:click="listPossibleDuplicates">Possible Duplicates Emails</button>
-            <ul v-for="ds in possibleDuplicates">
-                <ul v-for="d in ds">
-                    <li>{{ d }}</li>
+        <div id="dashboard">
+            <div id="people">
+                <table class="people-table">
+                    <tr align="center">
+                        <th>Name</th>
+                        <th>Email Address</th>
+                        <th>Job Title</th>
+                    </tr>
+                    <tr v-for="person in people">
+                        <td align="left">{{ person.display_name }}</td>
+                        <td align="center">{{ person.email_address }}</td>
+                        <td align="right">{{ person.title }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="character-frequencies">
+                <button v-on:click="listCharacterFrequencies">List Email Character Frequencies</button>
+                <table>
+                    <tr>
+                        <th>Character</th>
+                        <th>Frequency</th>
+                    </tr>
+                    <tr v-for="kv in frequencies">
+                        <td>{{ kv.key }}</td>
+                        <td>{{ kv.value }}</td>
+                    </tr>
+                    <tr>
+                        <div class="chart">
+                        </div>
+                    </tr>
+                </table>
+            </div>
+            <div id="possible-duplicates">
+                <button v-on:click="listPossibleDuplicates">Possible Duplicates Emails</button>
+                 <p v-if="possibleDuplicates.length < 1">No possible duplicates were found</p>
+                <ul v-for="ds in possibleDuplicates">
+                    <ul v-for="d in ds">
+                        <li>{{ d }}</li>
+                    </ul>
                 </ul>
-            </ul>
+            </div>
         </div>
         <script src="/static/js/app.js"></script>
     </body>
