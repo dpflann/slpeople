@@ -1,0 +1,9 @@
+#dashboard {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.poeple-table {
+    table-layout: fixed;
+    width: 100%;
+}
