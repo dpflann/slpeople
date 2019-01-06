@@ -1,9 +1,73 @@
+
+body {
+    background: #1f85c0;
+}
+
+.presentation {
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
 #dashboard {
     width: 50%;
     margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+}
+
+.scrollable {
+    overflow: scroll;
+    height: 500px;
 }
 
 .people-table {
     table-layout: fixed;
     width: 100%;
+    overflow: scroll;
+    height: 500px;
+}
+
+.button {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 80%;
+    border-radius: 10px;
+}
+
+.button:hover {
+    background-color: #4CBF90;
+    color: white;
+    font-weight:bold;
+}
+
+.button:active {
+    background-color: #4CDF90;
+    color: white;
+    font-style:italic;
+}
+
+.button-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart {
+    padding: 3px;
+    margin: 10px;
+}
+
+.chart-data div {
+    font: 16px sans-serif;
+    background-color: steelblue;
+    text-align: right;
+    padding: 3px;
+    margin: 1px;
+    color: white;
 }

@@ -24,7 +24,20 @@ var charFrequences = new Vue({
      methods: {
          listCharacterFrequencies(resource) {
              this.$http.get('/people/emails/char-frequencies').then(response => {
-                     this.frequencies = response.body.frequencies
+                     this.frequencies = response.body.frequencies;
+                     var data = this.frequencies.map(function (kv) { return kv.value });
+                     var x = d3.scale.linear()
+                        .domain([0, d3.max(data)])
+                        .range([0, d3.max(data) - 50]);
+
+                     d3.select(".chart-data")
+                      .selectAll("div")
+                        .data(this.frequencies)
+                      .enter().append("div")
+                        .style("width", function(fr) { return x(fr.value) + 45 + "px"; })
+                        .style("height", "24px")
+                        .text(function(fr) { return fr.key + " = "; })
+                        .append("span").text(function(fr) { return fr.value; });
            }, response => {
            });
          }
