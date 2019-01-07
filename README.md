@@ -23,12 +23,26 @@ that were new to me:
 
 This application uses Docker to manage compilation, testing, and locally running the server.
 
+# Requirements and Dependencies
+- Go
+  - ![core language](https://golang.org/): v11.4
+  - ![dep](https://golang.github.io/dep/) (dependency management): v0.5.0
+- Vue.js
+  - core: v2.5.21
+  - ![Vue Resource](https://github.com/pagekit/vue-resource): v1.5.1
+- ![d3.js](https://d3js.org/): v3
+- ![Docker](https://www.docker.com/): v18.09.0
+
 ## Build
-To build the application, run the `build.sh` script. This will create a container,
-run the unit tests with coverage, and conditionally compile the application in the container.
+To build the application, run the `build.sh` script in the project's root directory. This will create a container,
+run the unit tests with coverage, and conditionally compile the application to `slpeople.app` within the container.
+- `> ./build.sh`
 
 ## Test
-To the application code (mainly go code at this moment), run the following command at the project root:
+Testing is written into the Dockerfile (subject to change, convenient for now), and it uses go's builtin test package.
+As stated above, executing the `build.sh` script will run tests before compilation.
+
+To test the application code (mainly go code at this moment), run the following command at the project root:
 - `> go test -v -cover ./...`
   - This will execute all tests in all packages.
 The output will look like the following:
@@ -54,7 +68,6 @@ ok      github.com/slpeople/duplicates  0.009s  coverage: 76.0% of statements
 ?       github.com/slpeople/salesloftapi        [no test files]
 </code></pre>
 
-- Testing is written into the Dockerfile (subject to change, convenient for now).
 
 ## Run
 The applicatioon has two run flags:
