@@ -64,12 +64,12 @@ The applicatioon has two run flags:
 To run the application:
 - If running locally after compilation (e.g. via `go build ...`), exeucte the application binary (e.g. `slpeople`) with at least the `--apikey` flag.
 - To run the application using the container, you can use the `run.sh` script and provide the API Key and port.
-  - Using `run.sh`: `./run.sh "$apikey" "$port"
-  - This will execute: `> docker run --rm -it -p $port:$port slpeople "$apikey" "$port"
+  - Using `run.sh`: `./run.sh "$apikey" "$port"`
+  - This will execute: `> docker run --rm -it -p $port:$port slpeople "$apikey" "$port"`
 
 ## Test, Build, Run
 To do all this at once (test, build, run), run these contingent commands:
-- `./build.sh && ./run.sh "$apikey" "$port"
+- `./build.sh && ./run.sh "$apikey" "$port"`
 
 # TODO
 Future work:
@@ -77,4 +77,5 @@ Future work:
 - Add more tests for the UI and Vue.js components.
 - Add integration tests for network requests -- expected requests and responses.
 - Get help from a designer and UI expert to improve the UI.
-- <Always more work....>
+- Improve performance for listing people, characer frequency analysis, and fuzzy-matching for duplicates.
+- There is always more work...
