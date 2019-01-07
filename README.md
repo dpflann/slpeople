@@ -8,6 +8,11 @@ This repo contains a solution to the SalesLoft offline exerise (v2). This applic
  - Provide an initial solution for identifying duplicate email addresses.
  
  ![application_preview](/static/images/simple.app.view.png)
+ 
+## TLDR
+- Make sure you have Docker (v18.09.0), access to the internet, a browser, and a SalesLoft API key.
+- Then run: `./build.sh && ./run.sh "$apikey" "$port"` in the project root and visit `localhost:$port`.
+
 
 # Architecture
 
@@ -70,9 +75,10 @@ ok      github.com/slpeople/duplicates  0.009s  coverage: 76.0% of statements
 
 
 ## Run
-The applicatioon has two run flags:
+The application has two run flags:
 - `--apikey` is for the SalesLoft api key.
 - `--port` is the port for service. The application's default is `3000`.
+- For example: `slpeople --apikey "$apikey" --port "$port"`
 
 To run the application:
 - If running locally after compilation (e.g. via `go build ...`), exeucte the application binary (e.g. `slpeople`) with at least the `--apikey` flag.
@@ -83,6 +89,78 @@ To run the application:
 ## Test, Build, Run
 To do all this at once (test, build, run), run these contingent commands:
 - `./build.sh && ./run.sh "$apikey" "$port"`
+
+# API
+The application has 3 routes:
+- `/people` to list people (essentially an upstreaming to the SalesLoft API).
+  - *Http Method*: `GET`
+  - *Response*:
+  <pre><code>
+  {
+    "people": [
+      {
+        "id": 101694867,
+        "created_at": "2018-03-13T00:59:08.523837-04:00",
+        "updated_at": "2018-03-13T00:59:08.523837-04:00",
+        "first_name": "Marisa",
+        "last_name": "Casper",
+        "display_name": "Marisa Casper",
+        "email_address": "isnaoj_nathz@ihooberbrunner.net",
+        "secondary_email_address": "",
+        "personal_email_address": "",
+        "title": "Direct Security Representative"
+      },
+      ...
+    ]
+  }
+  </pre></code>
+- `/people/emails/char-frequencies` to list the frequencies of characters in people's email addresses in sorted order of count.
+  - *Http Method*: `GET`
+  - *Response*:
+  <pre><code>
+   {
+      "frequencies": [
+       {
+         "key": "e",
+         "value": 788
+       },
+       {
+         "key": "a",
+         "value": 660
+       },
+       {
+         "key": "n",
+         "value": 639
+       },
+       {
+         "key": "o",
+         "value": 593
+       },
+       ...
+       {
+         "key": "q",
+         "value": 7
+       },
+       {
+         "key": "x",
+         "value": 6
+       }
+     ]
+   }
+  </pre></code>
+- `/people/emails/duplicates` to list possible duplicate email addresses (e.g. those that may have occurred due to a typo on input).
+  - *Http Method*: `GET`
+  - *Response*:
+  <pre><code>
+  {
+   "possibleDuplicates": [
+      [
+        "dan@test.com",
+        "dann@test.com"
+      ]
+    ]
+  }
+  </pre></code>
 
 # TODO
 Future work:
