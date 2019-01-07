@@ -27,8 +27,7 @@ that were new to me:
 
 # Development
 
-This application uses Docker to manage compilation, testing, and locally running the server.
-Ensure Go is properly installed and that this repo is in your specified go path. For example on macOS, the go path will usually be `/Users/<you!>/go`, and this project would live in `/Users/<you!>/go/src/github.com/slpeople`.
+This application uses Docker to manage compilation, testing, and locally running the server. This means you can just clone the repo and use Docker to manage building, testing, and running; however, it is recommended that if you want to do anything beyond that you need to ensure Go is properly installed and that this repo is in your specified Go path (`$GOPATH`). For example on macOS, the Go path will usually be `/Users/<you!>/go`, and this project would live in `/Users/<you!>/go/src/github.com/slpeople`. If you need assistance message or email me and check out Go's website for assistance.
 
 # Requirements and Dependencies
 - Go
