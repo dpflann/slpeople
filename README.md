@@ -78,7 +78,7 @@ ok      github.com/slpeople/duplicates  0.009s  coverage: 76.0% of statements
 The application has two run flags:
 - `--apikey` is for the SalesLoft api key.
 - `--port` is the port for service. The application's default is `3000`.
-- For example: `slpeople --apikey "$apikey" --port "$port"`
+- For example: `./slpeople --apikey "$apikey" --port "$port"`
 
 To run the application:
 - If running locally after compilation (e.g. via `go build ...`), exeucte the application binary (e.g. `slpeople`) with at least the `--apikey` flag.
@@ -169,4 +169,5 @@ Future work:
 - Add integration tests for network requests -- expected requests and responses.
 - Get help from a designer and UI expert to improve the UI.
 - Improve performance for listing people, characer frequency analysis, and fuzzy-matching for duplicates.
+- Manage the service.
 - There is always more work...
