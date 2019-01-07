@@ -18,8 +18,8 @@ This repo contains a solution to the SalesLoft offline exerise (v2). This applic
 In deciding how to solve this, I decided to choose two technologies
 that were new to me:
 
-- ![Vue.js](https://vuejs.org/) for the front-end.
-- The ![Chi](https://github.com/go-chi/chi) project which uses Go for the back-end.
+- [Vue.js](https://vuejs.org/) for the front-end.
+- The [Chi](https://github.com/go-chi/chi) project which uses Go for the back-end.
 
 *NB*: It is entirely possible that these choices will change during the course of development. ;)
 
@@ -30,13 +30,13 @@ Ensure Go is properly installed and that this repo is in your specified go path.
 
 # Requirements and Dependencies
 - Go
-  - ![core language](https://golang.org/): v11.4
-  - ![dep](https://golang.github.io/dep/) (dependency management): v0.5.0
+  - [core language](https://golang.org/): v11.4
+  - [dep](https://golang.github.io/dep/) (dependency management): v0.5.0
 - Vue.js
   - core: v2.5.21
-  - ![Vue Resource](https://github.com/pagekit/vue-resource): v1.5.1
-- ![d3.js](https://d3js.org/): v3
-- ![Docker](https://www.docker.com/): v18.09.0
+  - [Vue Resource](https://github.com/pagekit/vue-resource): v1.5.1
+- [d3.js](https://d3js.org/): v3
+- [Docker](https://www.docker.com/): v18.09.0
 
 ## Build
 To build the application, run the `build.sh` script in the project's root directory. This will create a container,
