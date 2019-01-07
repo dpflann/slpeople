@@ -13,7 +13,6 @@ This repo contains a solution to the SalesLoft offline exerise (v2). This applic
 - Make sure you have Docker (v18.09.0), access to the internet, a browser, and a SalesLoft API key.
 - Then run: `./build.sh && ./run.sh "$apikey" "$port"` in the project root and visit `localhost:$port`.
 
-
 # Architecture
 
 In deciding how to solve this, I decided to choose two technologies
@@ -27,6 +26,7 @@ that were new to me:
 # Development
 
 This application uses Docker to manage compilation, testing, and locally running the server.
+Ensure Go is properly installed and that this repo is in your specified go path. For example on macOS, the go path will usually be `/Users/<you!>/go`, and this project would live in `/Users/<you!>/go/src/github.com/slpeople`.
 
 # Requirements and Dependencies
 - Go
