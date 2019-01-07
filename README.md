@@ -1,8 +1,8 @@
 # Introduction
 
 This repo contains a solution to the SalesLoft offline exerise (v2).
-This repo contains a solution to the SalesLoft offline exerise (v2). This application
- will:
+
+This application will:
  - List people from the SalesLoft API.
  - Provide character frequency analysis of the characters in the people's email address.
  - Provide an initial solution for identifying duplicate email addresses.
@@ -19,7 +19,9 @@ In deciding how to solve this, I decided to choose two technologies
 that were new to me:
 
 - [Vue.js](https://vuejs.org/) for the front-end.
+  - I am trying to learn and to develop my front-end/UI skills, and I heard good things about Vue.js
 - The [Chi](https://github.com/go-chi/chi) project which uses Go for the back-end.
+  - I am familiar with other projects and work with Go regularly, so I wanted to try out a new web framework.
 
 *NB*: It is entirely possible that these choices will change during the course of development. ;)
 
