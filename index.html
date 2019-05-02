@@ -5,26 +5,28 @@
         <link href="/static/css/style.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
         <script src="//d3js.org/d3.v3.min.js"></script>
-        <!--
-        <script src="/static/js/vue-resource.1.5.1.js"></script>
-        <script src="/static/js/vue.js.2.5.21.js"></script>
-        -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
     </head>
     <body>
-        <div id="dashboard">
+        <div id="dashboard" class="container">
             <div id="people" class="presentation">
-                <h1 align="center">People</h1>
+                <h1>People</h1>
+                <p>A list of people from the SalesLoft API.</p>
                 <div class="scrollable">
-                    <table v-if="people.length > 0" class="people-table">
-                        <tr align="center">
-                            <th>Name</th>
-                            <th>Email Address</th>
-                            <th>Job Title</th>
-                        </tr>
+                    <table v-if="people.length > 0" class="people-table table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email Address</th>
+                                <th>Job Title</th>
+                            </tr>
+                        <thead>
                         <tr v-for="person in people">
-                            <td align="left">{{ person.display_name }}</td>
-                            <td align="center">{{ person.email_address }}</td>
-                            <td align="right">{{ person.title }}</td>
+                            <td>{{ person.display_name }}</td>
+                            <td>{{ person.email_address }}</td>
+                            <td>{{ person.title }}</td>
                         </tr>
                     </table>
                 </div>
@@ -33,19 +35,6 @@
                 <div class="button-wrapper">
                     <button class="button" v-on:click="listCharacterFrequencies">List Email Character Frequencies</button>
                 </div>
-                <!-- Keeping this around while
-                <table v-if="frequencies.length > 1">
-                    <tr>
-                        <th>Character</th>
-                        <th>Frequency</th>
-                    </tr>
-                    <tr v-for="kv in frequencies">
-                        <td>{{ kv.key }}</td>
-                        <td>{{ kv.value }}</td>
-                    </tr>
-
-                </table>
-                -->
                 <div class="chart">
                     <div class="chart-data">
                     </div>
@@ -55,7 +44,7 @@
                 <div class="button-wrapper">
                     <button class="button" v-on:click="listPossibleDuplicates">Possible Duplicates Emails</button>
                 </div>
-                <p v-if="possibleDuplicates.length < 1">No possible duplicates were found</p>
+                <p v-if="possibleDuplicates.length < 1" align="center">No possible duplicates were found</p>
                 <ul v-for="ds in possibleDuplicates">
                     <ul v-if="possibleDuplicates.length > 0" v-for="d in ds">
                         <li>{{ d }}</li>
